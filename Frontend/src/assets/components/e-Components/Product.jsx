@@ -1,60 +1,87 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const Product = () => {
-  const [products, setProducts] = useState([]);
+const Product = ({ filterOpen }) => {
+  const { products = [], loading, error } = useSelector((state) => state.FetchPrducts);
 
+  if (loading) return (
+    <div className="flex justify-center mt-20">
+      <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+    </div>
+  );
 
-  // Fetch products
-  const fetchProducts = async () => {
-    try {
-      console.log("Data is being fetched...");
-      const response = await fetch(
-       "http://localhost:3000/products/getproducts"
-      );
-      const data = await response.json();
-      setProducts(data); // Save data in state
-          } catch (error) {
-      console.error("Error fetching products:", error);
-      }
-  };
+  if (error) return (
+    <p className="text-center text-red-500 mt-10">Error: {error}</p>
+  );
+  
 
-  useEffect(() => {
-    fetchProducts();
-  }, [])
+  return (
+    <div className="w-full min-h-[1000px] mt-[16px] px-[12px] md:px-[24px] lg:px-[30px] font-sans">
+      <ul
+        className="w-full min-h-[1000px] grid gap-[8px] transition-all duration-300"
+        style={{
+          gridTemplateColumns: filterOpen
+            ? 'repeat(auto-fill, minmax(100px, 1fr))'
+            : 'repeat(auto-fill, minmax(200px, 1fr))'
+        }}
+      >
+        {products.map((product) => (
+          <li key={product._id} className="w-full h-auto relative cursor-pointer">
 
-return (
-  <div className='max-lg:w-full min-h-[1000px] mt-[16px] lg:px-[30px] font-sans px-[12px] md:px-[24px] max-w-[1280px] min-[1350px]:max-w-[1800px] mx-auto'>
-    <ul className='w-full min-h-[1000px] grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 min-[1350px]:grid-cols-5 gap-[8px] justify-items-center'>
-      {products.map((product) => {
-        return (
-          <li key={product.id} className='w-full max-w-[297.693px] h-auto relative cursor-pointer'>
-            <div className='bg-[#ececec] flex justify-center items-start w-full h-auto min-h-[190px] sm:min-h-[372.862px]'>
-              <p className='bg-[#cc0000] text-center text-white text-[14px] w-[84.13px] h-[24.33px] absolute z-40 inline-block top-[10px] left-[6px] rounded-[5px] pt-[1px]'>{product.discount}</p>
-              <Link to="/women-shoes" className='overflow-hidden w-full h-full'>
-                <img className='w-full h-full object-cover relative transition-all duration-600 ease-in-out hover:scale-105' src={product.image} alt="ladies-Shoes" />
+            {/* Product Image */}
+            <div className={`bg-[#ececec] relative w-full overflow-hidden transition-all duration-300 ${filterOpen ? 'min-h-[133px] sm:min-h-[260px]' : 'min-h-[400px] sm:min-h-[372px]'}`}>
+              {product.discount && (
+                <p className="bg-[#cc0000] text-center text-white text-[14px] w-[84px] h-[24px] absolute z-40 top-[10px] left-[6px] rounded-[5px] pt-[1px]">
+                  {product.discount}
+                </p>
+              )}
+              {/* ✅ Sirf image wrap kiya Link mein */}
+              <Link to={`/product/${product._id}`} className="w-full h-full block">
+                <img
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  src={product.image}
+                  alt={product.name}
+                />
               </Link>
             </div>
-            <div className='inline-block w-full h-[82.9px]'>
-              <h3 className='w-full'>{product.name}</h3>
-              <span className='flex font-size-[1rem] w-full'>
-                <p className='mr-[10px] text-red-700'>{product.price}</p>
-                <del>{product.oldPrice}</del>
-              </span>
-              <div className='mt-[7px] flex items-center'>
-                <Link to="/payment" className='inline-block'>
-                  <img src="//insignia.com.pk/cdn/shop/t/42/assets/baadmay-short-logo.webp?v=86761914084985923991751264897" alt="BaadMay" width="20" height="20" />
+
+            {/* Product Info */}
+            <div className="w-full mt-2">
+              <h3 className="font-medium">{product.name}</h3>
+              <div className="flex gap-2 items-center">
+                <p className="text-red-700 font-semibold">Rs. {product.price}</p>
+                {product.oldPrice && (
+                  <del className="text-gray-500">Rs. {product.oldPrice}</del>
+                )}
+              </div>
+
+              {/* ✅ Payment div — Link ke bahar hai, nested nahi */}
+              <div className="mt-[7px] flex items-center gap-[5px]">
+                <Link to="/payment">
+                  <img
+                    src="//insignia.com.pk/cdn/shop/t/42/assets/baadmay-short-logo.webp?v=86761914084985923991751264897"
+                    alt="BaadMay"
+                    width="20"
+                    height="20"
+                  />
                 </Link>
-                <p className='inline-block text-[13px] font-bold ml-[5px] tracking-[1px] font-sans'>Pay only Rs. {product.price} now</p>
+                <p className="text-[13px] font-bold tracking-[1px]">
+                  Pay only Rs. {product.price} now
+                </p>
               </div>
             </div>
-            <div className={`${product.bg} size-[20px] rounded-[50%] outline outline-black outline-offset-1 m-[2px]`}></div>
-          </li>
-        )
-      })}
-    </ul>
-  </div>
-)
-}
 
-export default Product
+            {/* Color Swatch */}
+            {product.bg && (
+              <div className={`${product.bg} size-[20px] rounded-full outline outline-black outline-offset-1 m-[2px]`} />
+            )}
+
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default Product;

@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import NewShoes from '../../images/NewShoes.jpg'
 import LadiesShoes from '../../images/LadiesShoes.jpg'
 import MenShoes from '../../images/MensShoes.jpg'
 import { IoBagOutline } from "react-icons/io5";
 import { CiHeart } from "react-icons/ci";
-import { BrowserRouter as Router, Routes, Route, NavLink,Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 const Navbar = () => {
+  const [activeMenu, setActiveMenu] = useState(null);
 
 const navLinks = [
     {
@@ -142,51 +143,74 @@ const navLinks = [
 ];
 
 
+  const activeLink = activeMenu !== null ? navLinks[activeMenu] : null;
+
   return (
-<div className="w-full h-[41px] flex justify-center flex-wrap font-sans">
+<div
+  className="w-full h-[41px] flex justify-center flex-wrap font-sans relative"
+  onMouseLeave={() => setActiveMenu(null)}
+>
   {/* links */}
-  <div className="flex-1 flex justify-center ">
-    <ul className="relative left-[110px] list-none lg:flex mt-[10px] lg:w-[634.75px] h-[40.9px] flex-wrap justify-center hidden ">
-      {navLinks.map((link, i) => (
-        <li
-          key={i}
-          className="relative group w-fit font-normal text-[14px] hover:font-semibold text-black/70 hover:text-black/100 cursor-pointer tracking-[-0.5px] p-[10px]"
-        >
-          <NavLink to={link.to} className={`${link.text}`}>
-            {link.name}
-          </NavLink>
-          {link.hoverDetails?.length > 0 && (
-            <div className="border-t-[0.5px] border-b-[0.5px] border-gray-200 absolute top-[42px] overflow-hidden left-[-316px] group-hover:flex flex-col bg-white pt-3 rounded z-50 lg:w-[1263px] h-[37.6rem] hidden">
-              {link.hoverImage && (
-                <img
-                  src={link.hoverImage}
-                  alt={link.name}
-                  className="absolute w-[46.5vw] h-[100vh] right-[30px] mt-[9px] rounded-md"
-                />
-              )}
-              <div className="grid grid-cols-2 gap-4 w-[50%] h-[100vh] pl-[30px] mt-[10px]">
-                {link.hoverDetails.map((section, idx) => (
-                  <div key={idx}>
-                    {section.section && <h3>{section.section}</h3>}
-                    {section.items?.map((item, j) => (
-                      <Link
-                        key={j}
-                        to={item.to}
-                        className="hover:text-black/100 text-black/70 hover:text-[14px] font-normal hover:font-medium cursor-pointer block mb-2"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
+  <div className="flex-1 flex justify-center relative">
+  <ul className="relative left-[110px] list-none lg:flex mt-[10px] lg:w-[634.75px] h-[40.9px] flex-wrap justify-center hidden">
+  {navLinks.map((link, i) => (
+    <li
+      key={i}
+      className={`relative w-fit font-medium text-[14px] cursor-pointer tracking-[-0.5px] px-[10px] py-[10px] ${
+        activeMenu === i ? 'text-black' : 'text-black/70 hover:text-black'
+      }`}
+      onMouseEnter={() => {
+        if (link.hoverDetails?.length > 0) setActiveMenu(i);
+        else setActiveMenu(null);
+      }}
+    >
+      <NavLink to={link.to} className={`${link.text}`}>
+        {link.name}
+      </NavLink>
+    </li>
+  ))}
+</ul>
   </div>
-{/* form */}
+
+  {activeLink?.hoverDetails?.length > 0 && (
+    <div className="absolute left-[calc(50%-50vw)] top-full w-screen max-w-[100vw] pt-[10px] z-50">
+      <div className="border-t-[0.5px] border-b-[0.5px] border-gray-200 flex flex-row bg-white pt-2 sm:pt-3 max-h-[80vh] overflow-hidden">
+      <div className="w-1/2 min-h-0 overflow-y-auto max-h-[80vh]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-0.5 sm:gap-y-1 pl-3 sm:pl-5 lg:pl-6 pr-4 sm:pr-6 lg:pr-8 mt-1 sm:mt-1.5 lg:mt-[6px] content-start">
+          {activeLink.hoverDetails.map((section, idx) => (
+            <div key={idx} className="mb-2 sm:mb-3 lg:mb-4">
+              {section.section && (
+                <h3 className="text-[9px] sm:text-[10px] lg:text-[11px] font-semibold tracking-widest text-black mb-1 sm:mb-1.5 lg:mb-2 uppercase">
+                  {section.section}
+                </h3>
+              )}
+              {section.items?.map((item, j) => (
+                <Link
+                  key={j}
+                  to={item.to}
+                  className="text-black/60 hover:text-black/100 font-medium text-[10px] sm:text-[11px] lg:text-[12px] cursor-pointer block mb-[3px] sm:mb-[4px] lg:mb-[5px] whitespace-nowrap"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {activeLink.hoverImage && (
+        <div className="w-1/2 min-h-[180px] max-h-[80vh] overflow-hidden shrink-0">
+          <img
+            src={activeLink.hoverImage}
+            alt={activeLink.name}
+            className="w-full h-full max-h-[80vh] object-cover object-center"
+          />
+        </div>
+      )}
+      </div>
+    </div>
+  )}
+
 {/* form */}
 <div className=' sx:w-full  lg:w-[220px]  lg:h-[32px] lg:flex lg:justify-start lg:items-center lg:relative lg:top-[17px] '>
 <form action="/submit" className='sx:w-full lg:w-[160px ] lg:h-[33px] mb-[10px] sx:mx-auto md:hidden lg:block lg:relative  '>

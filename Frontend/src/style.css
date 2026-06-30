@@ -1,4 +1,10 @@
 @import "tailwindcss";
+
+html {
+  scrollbar-gutter: stable;
+  overflow-x: clip;
+}
+
 .logo-responsive {
   height: clamp(5px, 5vw, 39px);
 

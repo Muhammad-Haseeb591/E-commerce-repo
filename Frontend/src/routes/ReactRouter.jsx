@@ -1,9 +1,9 @@
 import React from 'react'
-import { BrowserRouter as Router,RouterProvider, Route, Routes, Link, createBrowserRouter } from 'react-router-dom'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import New from '../files/New.jsx'
 import Sales from '../files/Sales.jsx'
 import Women from '../files/Women.jsx'
-import  Men from '../files/Men.jsx'
+import Men from '../files/Men.jsx'
 import Fragrances from '../files/Fragrances.jsx'
 import Kids from '../files/Kids.jsx'
 import Accessories from '../files/Accessories.jsx'
@@ -12,35 +12,40 @@ import Home from '../files/Home.jsx'
 import Main from '../assets/components/e-Components/Main.jsx'
 import MainLayout from '../Layouts/MainLayout.jsx'
 import NotFound from '../files/NotFound.jsx'
-
+import Detail_Page from '../assets/components/Detail_Page/Detail_Page.jsx'
+import Cart from '../assets//components/Detail_Page/Cart.jsx'
+import Login from "../files/Login.jsx"
+import Signup from "../files/Signup.jsx"
+import AdminPanel  from "../assets/components/AdminPanelComponents/AdminPanel.jsx"
 
 const router = createBrowserRouter([
   {
-  path: '/',
-  element: <MainLayout />,
-  children: [
-    { index: true, element: <Home /> },   
-    { path: 'men', element: <Men />},
-    { path: 'kids', element: <Kids /> }, 
-    { path: 'sales', element: <Sales /> },
-    { path: 'accessories', element: <Accessories /> },
-    { path: 'fragrances', element: <Fragrances /> },
-    { path: 'getinspired', element: <Getinspired /> },
-    { path: 'new', element: <New /> },
-    { path: 'women', element: <Women /> },
-    { path: '*', element: <NotFound /> },
-    
-  ]
-}
-
-
-   
+    path: '/',
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: 'men', element: <Men /> },
+      { path: 'kids', element: <Kids /> },
+      { path: 'sales', element: <Sales /> },
+      { path: 'accessories', element: <Accessories /> },
+      { path: 'fragrances', element: <Fragrances /> },
+      { path: 'getinspired', element: <Getinspired /> },
+      { path: 'new', element: <New /> },
+      { path: 'women', element: <Women /> },
+      { path: 'products/:id', element: <Detail_Page /> },
+      { path: 'cart', element: <Cart /> },
+      { path: 'login', element: <Login /> },
+      { path: 'signup', element: <Signup /> },
+      { path: 'admin', element: <AdminPanel /> },
+      { path: '*', element: <NotFound /> },
+    ]
+  }
 ])
 
 const ReactRouter = () => {
   return (
     <div>
-       <RouterProvider router={router} />
+      <RouterProvider router={router} />
     </div>
   )
 }
