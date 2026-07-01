@@ -56,20 +56,7 @@ const Product = ({ filterOpen }) => {
                 )}
               </div>
 
-              {/* ✅ Payment div — Link ke bahar hai, nested nahi */}
-              <div className="mt-[7px] flex items-center gap-[5px]">
-                <Link to="/payment">
-                  <img
-                    src="//insignia.com.pk/cdn/shop/t/42/assets/baadmay-short-logo.webp?v=86761914084985923991751264897"
-                    alt="BaadMay"
-                    width="20"
-                    height="20"
-                  />
-                </Link>
-                <p className="text-[13px] font-bold tracking-[1px]">
-                  Pay only Rs. {product.price} now
-                </p>
-              </div>
+             
             </div>
 
             {/* Color Swatch */}

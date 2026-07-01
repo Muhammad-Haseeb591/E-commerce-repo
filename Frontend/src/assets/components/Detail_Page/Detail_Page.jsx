@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { addToCart } from "../redux_Toolkit/cartSlice";
-import { fetchFavourites, toggleFavourite } from "../redux_Toolkit/favouriteSlice"; // ← apna actual path check karna
+import { fetchFavourites, toggleFavourite } from "../redux_Toolkit/Favouriteslice"; // ← apna actual path check karna
 import {
   ArrowLeft, ShoppingCart, Check, Star,
   Tag, Percent, ImageOff, Truck, Shield, RotateCcw,
@@ -115,12 +115,13 @@ const Detail_Page = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // ← favourites ka "loading" rename kiya "favLoading" taake neeche wale product "loading" se clash na ho
+  
   const { items: favouriteItems } = useSelector((state) => state.favourites);
 
   useEffect(() => {
     dispatch(fetchFavourites());
   }, [dispatch]);
+
 
   const cartItems   = useSelector((state) => state.cart.items);
   const allProducts = useSelector((state) => state.FetchPrducts.products || []);
@@ -186,7 +187,7 @@ const Detail_Page = () => {
   );
 
   const images       = product.images?.filter(Boolean) || [];
-  const isInCart     = cartItems.some((i) => i._id === product._id);
+  const isInCart     = cartItems.some((i) => (i._id || i.id) === (product._id || product.id));
   const outOfStock   = Number(product.stock) === 0;
   const productPrice = Number(product.price);
 

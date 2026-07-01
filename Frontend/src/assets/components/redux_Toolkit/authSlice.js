@@ -3,30 +3,17 @@ import axios from "axios";
 
 const BASE = "http://localhost:3000/auth";
 
-// ── Async Thunks ─────────────────────────────────────────
+// Async Thunks 
 
-// Step 1: OTP bhejo
-export const sendOtp = createAsyncThunk(
-  "auth/sendOtp",
-  async (formData, { rejectWithValue }) => {
+// Signup
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async ({ fullName, email, password }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE}/send-otp`, formData);
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "OTP nahi gaya");
-    }
-  }
-);
-
-// Step 2: OTP verify — account banao
-export const verifySignup = createAsyncThunk(
-  "auth/verifySignup",
-  async ({ email, otp }, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${BASE}/verify-signup`, { email, otp });
+      const res = await axios.post(`${BASE}/register`, { fullName, email, password });
       return res.data; // { token, user }
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "OTP ghalat hai");
+      return rejectWithValue(err.response?.data?.message || "Signup failed");
     }
   }
 );
@@ -34,12 +21,22 @@ export const verifySignup = createAsyncThunk(
 // Login
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ emailOrPhone, password }, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE}/login`, { emailOrPhone, password });
-      return res.data; // { token, user }
+      const res = await axios.post(
+        `${BASE}/login`,
+        { email, password },
+        {
+          withCredentials: true,
+        }
+      );
+      
+
+      return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login fail ho gaya");
+      return rejectWithValue(
+        err.response?.data?.message || "Login failed"
+      );
     }
   }
 );
@@ -52,15 +49,13 @@ const authSlice = createSlice({
     token:   localStorage.getItem("token") ? localStorage.getItem("token") : null,
     loading: false,
     error:   null,
-    otpSent: false, // signup mein step 2 pe jaane ke liye
   },
   reducers: {
     // Manual logout
     logout: (state) => {
-      state.user    = null;
-      state.token   = null;
-      state.error   = null;
-      state.otpSent = false;
+      state.user  = null;
+      state.token = null;
+      state.error = null;
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     },
@@ -68,43 +63,23 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    // OTP step reset karo
-    resetOtpSent: (state) => {
-      state.otpSent = false;
-    },
   },
   extraReducers: (builder) => {
 
-    // ── sendOtp ──
+    // ── registerUser ──
     builder
-      .addCase(sendOtp.pending, (state) => {
+      .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error   = null;
       })
-      .addCase(sendOtp.fulfilled, (state) => {
+      .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.otpSent = true; // step 2 pe jao
-      })
-      .addCase(sendOtp.rejected, (state, action) => {
-        state.loading = false;
-        state.error   = action.payload;
-      });
-
-    // ── verifySignup ──
-    builder
-      .addCase(verifySignup.pending, (state) => {
-        state.loading = true;
-        state.error   = null;
-      })
-      .addCase(verifySignup.fulfilled, (state, action) => {
-        state.loading = false;
-        state.otpSent = false;
         state.user    = action.payload.user;
         state.token   = action.payload.token;
         localStorage.setItem("token", action.payload.token);
         localStorage.setItem("user",  JSON.stringify(action.payload.user));
       })
-      .addCase(verifySignup.rejected, (state, action) => {
+      .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error   = action.payload;
       });
@@ -129,5 +104,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, resetOtpSent } = authSlice.actions;
+export const { logout, clearError } = authSlice.actions;
 export default authSlice.reducer;

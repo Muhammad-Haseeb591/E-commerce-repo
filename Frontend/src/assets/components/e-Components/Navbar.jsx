@@ -245,9 +245,12 @@ const navLinks = [
 </form>
 
 {/* Favourite logo */}
-            <div className='hidden lg:block w-[27px] h-[27px] relative lg:left-[4px] lg:top-[-6px] ml-[35px] cursor-pointer '>
-            <CiHeart className='size-[30px] inline-block' />
-            </div>
+<Link
+  to="/favourite"
+  className="hidden lg:block w-[27px] h-[27px] relative lg:left-[4px] lg:top-[-6px] ml-[35px] cursor-pointer"
+>
+  <CiHeart className="size-[30px] inline-block" />
+</Link>
 {/* Cart logo */}
             <div className='inline-block size-[25px]  mr-[5px] cursor-pointer relative left-[8px] top-[-7px] ' >
          <Link to="/cart"> <span className='hidden lg:block'><svg className='  mr-[6px] size-[25px]' stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="w-[25px] h-[25px] text-black/70 " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M80 176a16 16 0 0 0-16 16v216c0 30.24 25.76 56 56 56h272c30.24 0 56-24.51 56-54.75V192a16 16 0 0 0-16-16zm80 0v-32a96 96 0 0 1 96-96h0a96 96 0 0 1 96 96v32"></path></svg></span></Link>

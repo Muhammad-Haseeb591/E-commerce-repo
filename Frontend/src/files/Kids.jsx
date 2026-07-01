@@ -29,12 +29,7 @@ const Kids = () => {
                 <p className='mr-[10px] text-red-700'>{product.price}</p>
                 <del>{product.oldPrice}</del>
               </span>
-              <div className='mt-[7px] flex items-center'>
-                <Link to="/payment" className='inline-block'>
-                  <img src="//insignia.com.pk/cdn/shop/t/42/assets/baadmay-short-logo.webp?v=86761914084985923991751264897" alt="BaadMay" width="20" height="20" />
-                </Link>
-                <p className='inline-block text-[13px] font-bold ml-[5px] tracking-[1px] font-sans'>Pay only Rs. {product.price} now</p>
-              </div>
+            
             </div>
             <div className={`${product.bg} size-[20px] rounded-[50%] outline outline-black outline-offset-1 m-[2px]`}></div>
           </li>

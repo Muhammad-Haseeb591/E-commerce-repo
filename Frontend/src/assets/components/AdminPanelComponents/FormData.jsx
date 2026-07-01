@@ -14,9 +14,10 @@ const FormData = ({ onClose }) => {
     rating: 0,
     sizes: [{ size: "", stock: 0 }],
     category: "",
-    stock: "",
     status: "active",
   });
+
+  const [submitError, setSubmitError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +35,7 @@ const FormData = ({ onClose }) => {
 
   const handleSizeChange = (index, field, value) => {
     const sizes = [...product.sizes];
-    sizes[index][field] = value;
+    sizes[index] = { ...sizes[index], [field]: value };
     setProduct({ ...product, sizes });
   };
 
@@ -44,26 +45,60 @@ const FormData = ({ onClose }) => {
       sizes: [...product.sizes, { size: "", stock: 0 }],
     });
 
+  const removeSizeField = (index) => {
+    const sizes = product.sizes.filter((_, i) => i !== index);
+    setProduct({ ...product, sizes: sizes.length ? sizes : [{ size: "", stock: 0 }] });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError("");
+
+    // Basic required-field check — same "empty string sent as required
+    // field" problem can happen to name/price/category too, not just sizes.
+    if (!product.name.trim() || !product.price || !product.category.trim()) {
+      setSubmitError("Name, Price aur Category zaroori hain.");
+      return;
+    }
+
+    // 🔧 THE ACTUAL FIX: drop any size row where "size" was left blank,
+    // instead of sending { size: "", stock: 0 } straight to the schema.
+    const cleanedSizes = product.sizes
+      .filter((s) => s.size && s.size.toString().trim() !== "")
+      .map((s) => ({
+        size: s.size.toString().trim(),
+        stock: Number(s.stock) || 0,
+      }));
+
+    const payload = {
+      ...product,
+      price: Number(product.price),
+      oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
+      images: product.images.filter((img) => img.trim() !== ""),
+      // Only include sizes if the admin actually filled at least one in.
+      // If your schema requires sizes to always be non-empty, remove this
+      // conditional and instead block submit when cleanedSizes.length === 0.
+      ...(cleanedSizes.length > 0 ? { sizes: cleanedSizes } : { sizes: [] }),
+    };
+
     try {
       const res = await fetch("http://localhost:3000/admin/addproducts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...product,
-          price: Number(product.price),
-          stock: Number(product.stock),
-          oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
-        }),
+        body: JSON.stringify(payload),
       });
+
+      const data = await res.json().catch(() => null);
 
       if (res.ok) {
         alert("Product added successfully!");
         onClose();
+      } else {
+        setSubmitError(data?.message || "Product add nahi hua. Server error.");
       }
     } catch (err) {
       console.error(err);
+      setSubmitError("Network error — server tak pohanch nahi payi request.");
     }
   };
 
@@ -88,6 +123,7 @@ const FormData = ({ onClose }) => {
           <input
             name="name"
             placeholder="Product Name"
+            value={product.name}
             onChange={handleChange}
             className={inputClass}
           />
@@ -98,6 +134,7 @@ const FormData = ({ onClose }) => {
               name="price"
               type="number"
               placeholder="Price"
+              value={product.price}
               onChange={handleChange}
               className={inputClass}
             />
@@ -105,36 +142,29 @@ const FormData = ({ onClose }) => {
               name="oldPrice"
               type="number"
               placeholder="Old Price"
+              value={product.oldPrice}
               onChange={handleChange}
               className={inputClass}
             />
           </div>
 
-          {/* Stock + Status */}
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              name="stock"
-              type="number"
-              placeholder="Stock (e.g. 50)"
-              onChange={handleChange}
-              className={inputClass}
-            />
-            <select
-              name="status"
-              onChange={handleChange}
-              defaultValue="active"
-              className={inputClass}
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
+          {/* Status */}
+          <select
+            name="status"
+            value={product.status}
+            onChange={handleChange}
+            className={inputClass}
+          >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
+          </select>
 
           {/* Description */}
           <textarea
             name="description"
             placeholder="Description"
+            value={product.description}
             onChange={handleChange}
             className={`${inputClass} h-24`}
           />
@@ -143,6 +173,7 @@ const FormData = ({ onClose }) => {
           <input
             name="category"
             placeholder="Category (e.g. women, men)"
+            value={product.category}
             onChange={handleChange}
             className={inputClass}
           />
@@ -151,6 +182,7 @@ const FormData = ({ onClose }) => {
           <input
             name="discount"
             placeholder="Discount (e.g. 20%)"
+            value={product.discount}
             onChange={handleChange}
             className={inputClass}
           />
@@ -210,20 +242,33 @@ const FormData = ({ onClose }) => {
 
           {/* Sizes & Stock */}
           <div>
-            <p className="font-medium mb-2 text-gray-700">Sizes & Stock</p>
+            <p className="font-medium mb-2 text-gray-700">
+              Sizes & Stock <span className="text-xs text-gray-400 font-normal">(optional — chorr do agar product ke sizes nahi)</span>
+            </p>
             {product.sizes.map((s, i) => (
-              <div key={i} className="grid grid-cols-2 gap-3 mb-2">
+              <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-3 mb-2 items-center">
                 <input
                   placeholder="Size (e.g. 40, L, XL)"
+                  value={s.size}
                   onChange={(e) => handleSizeChange(i, "size", e.target.value)}
                   className={inputClass}
                 />
                 <input
                   type="number"
                   placeholder="Stock"
+                  value={s.stock}
                   onChange={(e) => handleSizeChange(i, "stock", e.target.value)}
                   className={inputClass}
                 />
+                {product.sizes.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeSizeField(i)}
+                    className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             ))}
             <button
@@ -234,6 +279,13 @@ const FormData = ({ onClose }) => {
               + Add Size Variant
             </button>
           </div>
+
+          {/* Error */}
+          {submitError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+              {submitError}
+            </p>
+          )}
 
           {/* Submit */}
           <button

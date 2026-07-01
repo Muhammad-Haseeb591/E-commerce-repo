@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, ShoppingBag } from "lucide-react";
 import { loginUser, clearError } from "../assets/components/redux_Toolkit/authSlice";
 
 const GoogleIcon = () => (
@@ -20,11 +20,10 @@ const Login = () => {
 
   const { loading, error } = useSelector((state) => state.auth);
 
-  const [emailOrPhone, setEmailOrPhone] = useState("");
-  const [password,     setPassword]     = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe,   setRememberMe]   = useState(false);
-  const [localError,   setLocalError]   = useState("");
+  const [localError, setLocalError] = useState("");
 
   const redirectTo = location.state?.from || "/";
 
@@ -33,13 +32,12 @@ const Login = () => {
     setLocalError("");
     dispatch(clearError());
 
-    // Basic validation
-    if (!emailOrPhone.trim() || !password.trim()) {
-      setLocalError("Email/Phone or passwrod are required!");
+    if (!email.trim() || !password.trim()) {
+      setLocalError("Email and password are required.");
       return;
     }
 
-    const result = await dispatch(loginUser({ emailOrPhone, password }));
+    const result = await dispatch(loginUser({ email, password }));
 
     if (loginUser.fulfilled.match(result)) {
       navigate(redirectTo);
@@ -50,42 +48,32 @@ const Login = () => {
     window.location.href = "http://localhost:3000/auth/google";
   };
 
+  const handleGuestCheckout = () => {
+    navigate(redirectTo);
+  };
+
   const displayError = localError || error;
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 font-sans">
       <div className="w-full max-w-[400px]">
-
-        {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="w-11 h-11 rounded-xl bg-[#333333] mx-auto mb-5 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">S</span>
-          </div>
-          <h1 className="text-[28px] font-bold text-[#333333] tracking-tight">
-            Wapas aayen
-          </h1>
-          <p className="text-sm text-gray-400 mt-1.5">
-            Apne account mein sign in karein
-          </p>
-        </div>
-
         {/* Card */}
         <div className="border border-gray-200 rounded-2xl p-7 shadow-sm">
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Email or Phone */}
+            {/* Email */}
             <div>
               <label className="text-xs font-medium text-gray-500 mb-1.5 block">
-                Email ya Phone number
+                Email
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="text"
-                  value={emailOrPhone}
-                  onChange={(e) => setEmailOrPhone(e.target.value)}
-                  placeholder="aap@example.com ya 03XX-XXXXXXX"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-[#333333] placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#333333]/10 focus:border-[#333333] transition-all"
                 />
               </div>
@@ -101,7 +89,7 @@ const Login = () => {
                   to="/forgot-password"
                   className="text-xs text-gray-400 hover:text-[#333333] transition-colors"
                 >
-                  Forget Password
+                  Forgot Password?
                 </Link>
               </div>
               <div className="relative">
@@ -123,17 +111,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Remember Me */}
-            <label className="flex items-center gap-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 accent-[#333333] cursor-pointer"
-              />
-              <span className="text-xs text-gray-500">Remember Me</span>
-            </label>
-
             {/* Error */}
             {displayError && (
               <p className="text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
@@ -150,7 +127,7 @@ const Login = () => {
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <>Sign in <ArrowRight className="w-4 h-4" /></>
+                <>Login <ArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </form>
@@ -171,11 +148,21 @@ const Login = () => {
             <GoogleIcon />
             Continue with Google
           </button>
+
+          {/* Guest */}
+          <button
+            type="button"
+            onClick={handleGuestCheckout}
+            className="w-full flex items-center justify-center gap-2 py-3 mt-3 text-sm font-medium text-gray-500 hover:text-[#333333] transition-colors"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Continue as Guest
+          </button>
         </div>
 
         {/* Signup link */}
         <p className="text-center text-sm text-gray-400 mt-6">
-          Create New Account:{" "}
+          Don't have an account?{" "}
           <Link to="/signup" className="text-[#333333] font-medium hover:underline">
             Sign up
           </Link>

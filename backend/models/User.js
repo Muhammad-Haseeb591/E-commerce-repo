@@ -3,16 +3,9 @@ const bcrypt   = require("bcryptjs");
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
-  fullName:      { type: String, required: true, trim: true },
-  email:         { type: String, required: true, unique: true, lowercase: true, trim: true },
-  phone:         { type: String, required: true, trim: true },
-  password:      { type: String, required: true },
-  subscribeNews: { type: Boolean, default: true },
-
-  // OTP / Verification
-  otp:           { type: String },
-  otpExpiry:     { type: Date },
-  isVerified:    { type: Boolean, default: false },
+  fullName: { type: String, required: true, trim: true },
+  email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true },
 
   // Favourite products ki list
   favourites: [
@@ -23,7 +16,7 @@ const userSchema = new Schema({
   ],
 }, { timestamps: true });
 
-// Password save hone se pehle hash 
+// Password save hone se pehle hash
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
   if (this.password && this.password.startsWith("$2b$")) return;

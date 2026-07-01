@@ -1,12 +1,10 @@
-const express        = require("express");
-const authController = require("../controllers/authController");
-const { protect }    = require("../middleware/authMiddleware");   // ✅ sahi path
+const router = require("express").Router();
+const { register, login, logout, getMe } = require("../controllers/authController");
+const { protect } = require("../middleware/authMiddleware");
 
-const authRouter = express.Router();
+router.post("/register", register);
+router.post("/login", login);
+router.post("/logout", logout);
+router.get("/me", protect, getMe);
 
-authRouter.post("/send-otp",      authController.sendOtp);
-authRouter.post("/verify-signup", authController.verifySignup);
-authRouter.post("/login",         authController.login);
-authRouter.get("/me",   protect,  authController.getMe);
-
-module.exports = { authRouter };
+module.exports = { authRouter: router };

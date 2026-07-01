@@ -17,6 +17,10 @@ import Cart from '../assets//components/Detail_Page/Cart.jsx'
 import Login from "../files/Login.jsx"
 import Signup from "../files/Signup.jsx"
 import AdminPanel  from "../assets/components/AdminPanelComponents/AdminPanel.jsx"
+import Checkoutpage from "../files/Checkoutpage.jsx"
+import CartSync from "../assets/components/Detail_Page/Cartsync.jsx" 
+import Favourite from "../files/Favourite.jsx"
+import Orders from "../assets/components/AdminPanelComponents/Orders.jsx"
 
 const router = createBrowserRouter([
   {
@@ -36,7 +40,10 @@ const router = createBrowserRouter([
       { path: 'cart', element: <Cart /> },
       { path: 'login', element: <Login /> },
       { path: 'signup', element: <Signup /> },
-      { path: 'admin', element: <AdminPanel /> },
+      { path: 'admin/dashboard', element: <AdminPanel /> },
+      { path: 'checkout', element: <Checkoutpage/> },
+      { path: 'favourite', element: <Favourite/> },
+      { path: 'orders', element: <Orders/> },
       { path: '*', element: <NotFound /> },
     ]
   }
@@ -45,6 +52,7 @@ const router = createBrowserRouter([
 const ReactRouter = () => {
   return (
     <div>
+      <CartSync />
       <RouterProvider router={router} />
     </div>
   )

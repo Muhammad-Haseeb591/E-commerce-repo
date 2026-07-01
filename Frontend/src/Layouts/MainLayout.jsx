@@ -9,25 +9,26 @@ import Main from "../assets/components/e-Components/Main";
 const MainLayout = () => {
   const { pathname } = useLocation();
 
+  // jin paths pe sab kuch hide hona hai (sirf Outlet dikhega)
+  const minimalLayoutPaths = ["/checkout", "/signup", "/login", "/forgot-password","/admin/dashboard"];
+  const isMinimalLayout = minimalLayoutPaths.includes(pathname);
+
   const hideMain =
     pathname === "/" ||
-    pathname === "/checkout"||
     pathname === "/cart" ||
-    pathname.startsWith("/products/");
+    pathname === "/favourites"||
+    pathname.startsWith("/products/") ||
+    isMinimalLayout;
+
+  if (isMinimalLayout) {
+    return <Outlet />;
+  }
 
   return (
     <>
       <Header />
       <PromoMessage />
-
-      {hideMain ? (
-        <Outlet />
-      ) : (
-        <Main>
-          <Outlet />
-        </Main>
-      )}
-
+      {hideMain ? <Outlet /> : <Main><Outlet /></Main>}
       <FooterNav />
       <Footer />
     </>

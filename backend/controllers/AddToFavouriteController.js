@@ -6,7 +6,7 @@ const Product = require('../models/AdminProductSchema');
 const addToFavourite = async (req, res) => {
   try {
     const { productId } = req.params;
-    const userId = req.user.id;
+    const userId = req.userId; // 🔧 was req.user.id — protect middleware sets req.userId directly
 
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({ success: false, message: 'Product ID invalid hai.' });
@@ -17,7 +17,8 @@ const addToFavourite = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product nahi mila.' });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
+    .populate("favourites");
     if (!user) {
       return res.status(404).json({ success: false, message: 'User nahi mila.' });
     }
@@ -48,7 +49,7 @@ const addToFavourite = async (req, res) => {
 const removeFromFavourite = async (req, res) => {
   try {
     const { productId } = req.params;
-    const userId = req.user.id;
+    const userId = req.userId; // 🔧 was req.user.id
 
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({ success: false, message: 'Product ID invalid hai.' });
@@ -88,7 +89,7 @@ const removeFromFavourite = async (req, res) => {
 const toggleFavourite = async (req, res) => {
   try {
     const { productId } = req.params;
-    const userId = req.user.id;
+    const userId = req.userId; // 🔧 was req.user.id — THIS was line 91, the exact crash site
 
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({ success: false, message: 'Product ID invalid hai.' });
@@ -135,7 +136,7 @@ const toggleFavourite = async (req, res) => {
 
 const getFavourites = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId; // 🔧 was req.user.id
 
     const user = await User.findById(userId).populate('favourites');
     if (!user) {

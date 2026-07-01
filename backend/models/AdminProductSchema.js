@@ -9,11 +9,12 @@ const productSchema = new mongoose.Schema({
   name:        { type: String,   default: "" },
   description: { type: String,   default: "" },
   images:      { type: [String], default: [] },
-  price:       { type: Number,   default: 0 },    // ← ADD KIYA
+  price:       { type: Number,   default: 0 },
   oldPrice:    { type: Number,   default: null },
-  stock:       { type: Number,   default: 0 },    // ← ADD KIYA — total stock
+  stock:       { type: Number,   default: 0 },
+
   status:      { type: String,   default: "active",
-                 enum: ["active", "inactive", "pending"] }, // ← ADD KIYA
+                 enum: ["active", "inactive", "pending"] },
   color:       { type: String,   default: "" },
   bg:          { type: String,   default: "" },
   discount:    { type: String,   default: "" },
@@ -28,5 +29,15 @@ productSchema.path("sizes").validate(function (sizes) {
   const sizeList = sizes.map(s => s.size);
   return sizeList.length === new Set(sizeList).size;
 }, "Duplicate sizes are not allowed");
+
+// 🔧 Auto-total stock from size variants, whenever sizes are present —
+// keeps `stock` (used everywhere for StockBadge / outOfStock checks)
+// truthful without needing the admin to enter it twice.
+productSchema.pre("save", function (next) {
+  if (this.sizes && this.sizes.length > 0) {
+    this.stock = this.sizes.reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
+  }
+  next();
+});
 
 module.exports = mongoose.model("Product", productSchema);
